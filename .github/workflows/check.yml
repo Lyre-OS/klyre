@@ -1,0 +1,27 @@
+name: Build Lyre kernel
+
+on:
+  pull_request:
+    paths-ignore:
+      - "**.md"
+  push:
+    paths-ignore:
+      - "**.md"
+
+jobs:
+  lyre-build:
+    runs-on: ubuntu-latest
+    container: archlinux:latest
+
+    steps:
+      - name: Install dependencies
+        run: pacman --noconfirm -Syu && pacman --needed --noconfirm -S base-devel git autoconf automake meson ninja nasm curl llvm clang lld
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build the Lyre kernel
+        run: |
+          ./bootstrap
+          ./configure
+          make
