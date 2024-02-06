@@ -1,0 +1,14 @@
+[binaries]
+c = 'x86_64-lyre-gcc'
+cpp = 'x86_64-lyre-g++'
+ar = 'x86_64-lyre-ar'
+nm = 'x86_64-lyre-nm'
+strip = 'x86_64-lyre-strip'
+pkg-config = 'x86_64-lyre-pkg-config'
+llvm-config = '/base_dir/build-support/cross-llvm-config'
+
+[host_machine]
+system = 'lyre'
+cpu_family = 'x86_64'
+cpu = 'x86_64'
+endian = 'little'

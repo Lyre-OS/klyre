@@ -1,0 +1,227 @@
+# Nuke built-in rules and variables.
+override MAKEFLAGS += -rR
+
+# Convenience macro to reliably declare user overridable variables.
+define DEFAULT_VAR =
+    ifeq ($(origin $1),default)
+        override $(1) := $(2)
+    endif
+    ifeq ($(origin $1),undefined)
+        override $(1) := $(2)
+    endif
+endef
+
+# Import some autoconf variables as make variables.
+# Those beginning with DEFAULT_ are user overridable.
+override ARCH := @ARCH@
+override SRCDIR := @SRCDIR@
+override PACKAGE_VERSION := @PACKAGE_VERSION@
+override PACKAGE_TARNAME := @PACKAGE_TARNAME@
+override OUTPUT := bin/$(PACKAGE_TARNAME)
+override TOOLCHAIN_FILE := @TOOLCHAIN_FILE@
+override WERROR_FLAG := @WERROR_FLAG@
+override DEFAULT_CFLAGS := @CFLAGS@
+$(eval $(call DEFAULT_VAR,CFLAGS,$(DEFAULT_CFLAGS)))
+override DEFAULT_CPPFLAGS := @CPPFLAGS@
+$(eval $(call DEFAULT_VAR,CPPFLAGS,$(DEFAULT_CPPFLAGS)))
+#ifeq ($(ARCH),x86_64)
+#    override DEFAULT_NASMFLAGS := @NASMFLAGS@
+#    $(eval $(call DEFAULT_VAR,NASMFLAGS,$(DEFAULT_NASMFLAGS)))
+#endif
+override DEFAULT_LDFLAGS := @LDFLAGS@
+$(eval $(call DEFAULT_VAR,LDFLAGS,$(DEFAULT_LDFLAGS)))
+override MKDIR_P := @MKDIR_P@
+override INSTALL := @INSTALL@
+override INSTALL_DATA := @INSTALL_DATA@
+override prefix := @prefix@
+override datarootdir := @datarootdir@
+
+LYRE_DEBUG ?= @LYRE_DEBUG@
+
+override GREP := @GREP@
+export GREP
+override SED := @SED@
+export SED
+override AWK := @AWK@
+export AWK
+
+# Macros to make our build system still work from within paths with spaces
+# or other special characters.
+override SPACE := $(subst ,, )
+MKESCAPE = $(subst $(SPACE),\ ,$(1))
+SHESCAPE = $(subst ','\'',$(1))
+
+# Include toolchain file.
+include $(call MKESCAPE,$(TOOLCHAIN_FILE))
+export OBJDUMP
+
+# Internal C flags that should not be changed by the user.
+override CFLAGS += \
+    -Wall \
+    -Wextra \
+    -Wno-microsoft-anon-tag \
+    -Wvla \
+    -Wshadow \
+    $(WERROR_FLAG) \
+    -g \
+    -std=gnu11 \
+    -nostdinc \
+    -fms-extensions \
+    -fno-omit-frame-pointer \
+    -fno-strict-aliasing \
+    -ffreestanding \
+    -fno-stack-protector \
+    -fno-stack-check \
+    -fno-lto \
+    -fPIE
+
+# Internal C preprocessor flags that should not be changed by the user.
+override CPPFLAGS := \
+    -isystem '$(call SHESCAPE,$(SRCDIR))/mlibc-headers' \
+    -isystem '$(call SHESCAPE,$(SRCDIR))/freestanding-headers' \
+    -I'$(call SHESCAPE,$(SRCDIR))/src' \
+    $(CPPFLAGS) \
+    -Ddebug=$(LYRE_DEBUG) \
+    -D__MLIBC_ABI_ONLY \
+    -D_GNU_SOURCE \
+    -DPRINTF_ALIAS_STANDARD_FUNCTION_NAMES=1 \
+    -DPRINTF_ALIAS_STANDARD_FUNCTION_NAMES_HARD=1 \
+    -DPRINTF_SUPPORT_DECIMAL_SPECIFIERS=0 \
+    -DPRINTF_SUPPORT_EXPONENTIAL_SPECIFIERS=0 \
+    -MMD \
+    -MP
+
+#ifeq ($(ARCH),x86_64)
+#    # Internal nasm flags that should not be changed by the user.
+#    override NASMFLAGS += \
+#        -Wall \
+#        $(WERROR_FLAG)
+#endif
+
+obj/flanterm/backends/fb.c.o: override CPPFLAGS += \
+    -DFLANTERM_FB_DISABLE_BUMP_ALLOC
+
+# Set archtecture specific variables (and check that the architecture is supported).
+ifeq ($(ARCH),x86_64)
+    override CFLAGS += \
+        -m64 \
+        -march=x86-64 \
+        -mno-80387 \
+        -mno-mmx \
+        -mno-sse \
+        -mno-sse2 \
+        -mno-red-zone
+    override LDFLAGS += \
+        -m elf_x86_64
+#    override NASMFLAGS += \
+#        -f elf64
+else
+    $(error Architecture $(ARCH) not supported)
+endif
+
+# Internal linker flags that should not be changed by the user.
+override LDFLAGS += \
+    -nostdlib \
+    -static \
+    -pie \
+    --no-dynamic-linker \
+    -z text \
+    -z max-page-size=0x1000 \
+    -T '$(call SHESCAPE,$(SRCDIR)/linker-$(ARCH).ld)'
+
+# Use "find" to glob all *.c, *.S, and *.asm files in the tree and obtain the
+# object and header dependency file names.
+override CFILES := $(shell cd '$(call SHESCAPE,$(SRCDIR))/src' && find -L * -type f -name '*.c')
+override ASFILES := $(shell cd '$(call SHESCAPE,$(SRCDIR))/src' && find -L * -type f -name '*.S')
+override OBJ := $(addprefix obj/,$(CFILES:.c=.c.o) $(ASFILES:.S=.S.o))
+#ifeq ($(ARCH),x86_64)
+#    override NASMFILES := $(shell cd '$(call SHESCAPE,$(SRCDIR))/src' && find -L * -type f -name '*.asm')
+#    override OBJ += $(addprefix obj/,$(NASMFILES:.asm=.asm.o))
+#endif
+override HEADER_DEPS := $(addprefix obj/,$(CFILES:.c=.c.d) $(ASFILES:.S=.S.d))
+
+# Default target.
+.PHONY: all
+all: $(OUTPUT)
+
+# Link rules for the final kernel executable.
+$(OUTPUT): GNUmakefile $(call MKESCAPE,$(SRCDIR))/linker-$(ARCH).ld $(OBJ)
+	$(MKDIR_P) "$$(dirname $@)"
+	$(LD) $(OBJ) $(LDFLAGS) -o $@
+	'$(call SHESCAPE,$(SRCDIR))/gensyms.sh' $@ > obj/symtab.map
+	$(CC) $(CFLAGS) $(CPPFLAGS) -x c -c obj/symtab.map -o obj/symtab.map.o
+	$(LD) $(OBJ) obj/symtab.map.o $(LDFLAGS) -o $@
+
+# Include header dependencies.
+-include $(HEADER_DEPS)
+
+# Compilation rules for *.c files.
+obj/%.c.o: $(call MKESCAPE,$(SRCDIR))/src/%.c GNUmakefile
+	$(MKDIR_P) "$$(dirname $@)"
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c '$(call SHESCAPE,$<)' -o $@
+
+# Compilation rules for *.S files.
+obj/%.S.o: $(call MKESCAPE,$(SRCDIR))/src/%.S GNUmakefile
+	$(MKDIR_P) "$$(dirname $@)"
+	$(CC) $(CFLAGS) $(CPPFLAGS) -c '$(call SHESCAPE,$<)' -o $@
+
+#ifeq ($(ARCH),x86_64)
+## Compilation rules for *.asm files.
+#obj/%.asm.o: $(call MKESCAPE,$(SRCDIR))/src/%.asm GNUmakefile
+#	$(MKDIR_P) "$$(dirname $@)"
+#	nasm $(NASMFLAGS) '$(call SHESCAPE,$<)' -o $@
+#endif
+
+# Remove object files and the final executable.
+.PHONY: clean
+clean:
+	rm -rf bin obj
+
+# Remove files generated by configure.
+.PHONY: distclean
+distclean: clean
+	rm -rf config.log config.status GNUmakefile toolchain-files
+
+# Create a release tarball.
+.PHONY: dist
+dist:
+	rm -rf "$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)"
+	$(MKDIR_P) "$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)"
+	cp -rp '$(call SHESCAPE,$(SRCDIR))'/.git "$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)"/
+	cd "$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)" && git checkout .
+	cd "$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)" && ./bootstrap
+	rm -rf "$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)"/.git
+	rm -rf "$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)"/.gitignore
+	rm -rf "$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)"/.github
+	rm -rf "$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)"/autom4te.cache
+	rm -rf "$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)"/freestanding-headers/.git
+	rm -rf "$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)"/build-aux/freestanding-toolchain/.git
+	rm -rf "$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)"/src/cc-runtime/.git
+	rm -rf "$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)"/src/flanterm/.git
+	rm -rf "$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)"/printf
+	rm -rf "$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)"/mlibc
+	echo "$(PACKAGE_VERSION)" >"$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)"/version
+	tar -Jcf "$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)".tar.xz "$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)"
+	tar -zcf "$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)".tar.gz "$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)"
+	rm -rf "$(PACKAGE_TARNAME)-$(PACKAGE_VERSION)"
+
+# Remove ALL generated files.
+.PHONY: maintainer-clean
+maintainer-clean: distclean
+	cd '$(call SHESCAPE,$(SRCDIR))' && rm -rf printf src/printf src/flanterm mlibc mlibc-headers freestanding-headers src/cc-runtime src/limine.h configure build-aux *'~' autom4te.cache
+
+# Install files and executables to the final locations.
+.PHONY: install
+install: all
+	$(INSTALL) -d '$(call SHESCAPE,$(DESTDIR)$(datarootdir))/$(PACKAGE_TARNAME)'
+	$(INSTALL_DATA) $(OUTPUT) '$(call SHESCAPE,$(DESTDIR)$(datarootdir))/$(PACKAGE_TARNAME)/'
+
+# Install and strip executables.
+.PHONY: install-strip
+install-strip: install
+	$(STRIP) '$(call SHESCAPE,$(DESTDIR)$(datarootdir))/$(PACKAGE_TARNAME)'/"$$(basename '$(OUTPUT)')"
+
+# Uninstall previously installed files and executables.
+.PHONY: uninstall
+uninstall:
+	rm -rf '$(call SHESCAPE,$(DESTDIR)$(datarootdir))/$(PACKAGE_TARNAME)'
