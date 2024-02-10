@@ -12,7 +12,7 @@ FREESTANDING_HEADERS_COMMIT_HASH=dd3abd2d7147efc4170dff478d3b7730bed14147
 CC_RUNTIME_COMMIT_HASH=38942e9a0d11af77c5d9fb45794850f7a1565d2b
 FLANTERM_COMMIT_HASH=545ab1faa8ba7493ae7a43064d520e402ad308b5
 PRINTF_COMMIT_HASH=af05afe8ef0f84cb9f3a9bbfd79ac81a941cbebf
-MLIBC_COMMIT_HASH=84d7a13945b2a61c0809886235258a3e2cfd6984
+MLIBC_COMMIT_HASH=ab48870dd83cb33902740566ce9ae877ded53f28
 
 clone_repo_commit() {
     if [ -d $2/.git ]; then
@@ -38,7 +38,7 @@ clone_repo_commit https://github.com/eyalroz/printf.git printf $PRINTF_COMMIT_HA
 mkdir -p src/printf
 cp -pv printf/src/printf/* src/printf
 
-clone_repo_commit https://github.com/mintsuki/mlibc.git mlibc $MLIBC_COMMIT_HASH
+clone_repo_commit https://github.com/managarm/mlibc.git mlibc $MLIBC_COMMIT_HASH
 mkdir -p mlibc-build
 cd mlibc-build
 meson setup \
