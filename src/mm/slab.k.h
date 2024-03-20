@@ -1,5 +1,5 @@
-#ifndef _MM__SLAB_K_H
-#define _MM__SLAB_K_H
+#ifndef MM__SLAB_K_H_
+#define MM__SLAB_K_H_
 
 #include <stddef.h>
 

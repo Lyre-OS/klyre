@@ -1,5 +1,5 @@
-#ifndef _LIB__EVENT_K_H
-#define _LIB__EVENT_K_H
+#ifndef LIB__EVENT_K_H_
+#define LIB__EVENT_K_H_
 
 #include <stdbool.h>
 #include <stddef.h>

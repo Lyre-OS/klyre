@@ -1,5 +1,5 @@
-#ifndef _LIB__DEBUG_K_H
-#define _LIB__DEBUG_K_H
+#ifndef LIB__DEBUG_K_H_
+#define LIB__DEBUG_K_H_
 
 #include <stdint.h>
 #include <lib/print.k.h>

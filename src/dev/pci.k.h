@@ -1,5 +1,5 @@
-#ifndef _DEV__PCI_K_H
-#define _DEV__PCI_K_H
+#ifndef DEV__PCI_K_H_
+#define DEV__PCI_K_H_
 
 #include <stdint.h>
 #include <stdbool.h>

@@ -1,5 +1,5 @@
-#ifndef _LIB__MISC_K_H
-#define _LIB__MISC_K_H
+#ifndef LIB__MISC_K_H_
+#define LIB__MISC_K_H_
 
 #include <lib/panic.k.h>
 

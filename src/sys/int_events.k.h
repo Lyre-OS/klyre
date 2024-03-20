@@ -1,5 +1,5 @@
-#ifndef _SYS__INT_EVENTS_K_H
-#define _SYS__INT_EVENTS_K_H
+#ifndef SYS__INT_EVENTS_K_H_
+#define SYS__INT_EVENTS_K_H_
 
 #include <lib/event.k.h>
 

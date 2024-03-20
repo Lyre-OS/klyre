@@ -1,5 +1,5 @@
-#ifndef _LIB__ERRNO_K_H
-#define _LIB__ERRNO_K_H
+#ifndef LIB__ERRNO_K_H_
+#define LIB__ERRNO_K_H_
 
 #include <errno.h>
 #include <sched/proc.k.h>

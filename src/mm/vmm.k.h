@@ -1,5 +1,5 @@
-#ifndef _MM__VMM_K_H
-#define _MM__VMM_K_H
+#ifndef MM__VMM_K_H_
+#define MM__VMM_K_H_
 
 #include <stdbool.h>
 #include <stdint.h>

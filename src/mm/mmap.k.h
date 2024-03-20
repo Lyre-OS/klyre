@@ -1,5 +1,5 @@
-#ifndef _MM__MMAP_K_H
-#define _MM__MMAP_K_H
+#ifndef MM__MMAP_K_H_
+#define MM__MMAP_K_H_
 
 #include <stdbool.h>
 #include <stddef.h>

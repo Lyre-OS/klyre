@@ -1,5 +1,5 @@
-#ifndef _LIB__ALLOC_K_H
-#define _LIB__ALLOC_K_H
+#ifndef LIB__ALLOC_K_H_
+#define LIB__ALLOC_K_H_
 
 #include <stddef.h>
 #include <mm/slab.k.h>

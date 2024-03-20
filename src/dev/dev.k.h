@@ -1,5 +1,5 @@
-#ifndef _DEV__DEV_K_H
-#define _DEV__DEV_K_H
+#ifndef DEV__DEV_K_H_
+#define DEV__DEV_K_H_
 
 #include <stdint.h>
 #include <dev/pci.k.h>

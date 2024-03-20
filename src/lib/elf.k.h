@@ -1,5 +1,5 @@
-#ifndef _LIB__ELF_K_H
-#define _LIB__ELF_K_H
+#ifndef LIB__ELF_K_H_
+#define LIB__ELF_K_H_
 
 #include <stdbool.h>
 #include <stdint.h>

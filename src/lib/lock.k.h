@@ -1,5 +1,5 @@
-#ifndef _LIB__LOCK_K_H
-#define _LIB__LOCK_K_H
+#ifndef LIB__LOCK_K_H_
+#define LIB__LOCK_K_H_
 
 #include <stdbool.h>
 #include <lib/misc.k.h>

@@ -1,5 +1,5 @@
-#ifndef _TIME__TIME_K_H
-#define _TIME__TIME_K_H
+#ifndef TIME__TIME_K_H_
+#define TIME__TIME_K_H_
 
 #include <stdbool.h>
 #include <stddef.h>

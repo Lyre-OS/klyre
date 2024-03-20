@@ -1,5 +1,5 @@
-#ifndef _DEV__CHAR__MOUSE_K_H
-#define _DEV__CHAR__MOUSE_K_H
+#ifndef DEV__CHAR__MOUSE_K_H_
+#define DEV__CHAR__MOUSE_K_H_
 
 void mouse_init(void);
 

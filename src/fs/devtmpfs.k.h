@@ -1,5 +1,5 @@
-#ifndef _FS__DEVTMPFS_K_H
-#define _FS__DEVTMPFS_K_H
+#ifndef FS__DEVTMPFS_K_H_
+#define FS__DEVTMPFS_K_H_
 
 #include <stdbool.h>
 #include <lib/resource.k.h>

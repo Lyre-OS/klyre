@@ -1,5 +1,5 @@
-#ifndef _DEV__CHAR__CONSOLE_K_H
-#define _DEV__CHAR__CONSOLE_K_H
+#ifndef DEV__CHAR__CONSOLE_K_H_
+#define DEV__CHAR__CONSOLE_K_H_
 
 #include <stddef.h>
 

@@ -1,5 +1,5 @@
-#ifndef _FS__FAT32FS_K_H
-#define _FS__FAT32FS_K_H
+#ifndef FS__FAT32FS_K_H_
+#define FS__FAT32FS_K_H_
 
 void fat32fs_init();
 

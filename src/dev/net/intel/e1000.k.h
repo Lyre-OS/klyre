@@ -1,5 +1,5 @@
-#ifndef _DEV__NET__INTEL_E1000_K_H
-#define _DEV__NET__INTEL_E1000_K_H
+#ifndef DEV__NET__INTEL_E1000_K_H_
+#define DEV__NET__INTEL_E1000_K_H_
 
 #include <stdint.h>
 

@@ -1,5 +1,5 @@
-#ifndef _LIB__PANIC_K_H
-#define _LIB__PANIC_K_H
+#ifndef LIB__PANIC_K_H_
+#define LIB__PANIC_K_H_
 
 #include <stdbool.h>
 #include <stdnoreturn.h>

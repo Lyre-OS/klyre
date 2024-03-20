@@ -1,5 +1,5 @@
-#ifndef _SYS__IDT_K_H
-#define _SYS__IDT_K_H
+#ifndef SYS__IDT_K_H_
+#define SYS__IDT_K_H_
 
 #include <stdint.h>
 

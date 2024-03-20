@@ -1,5 +1,5 @@
-#ifndef _LIB__VECTOR_K_H
-#define _LIB__VECTOR_K_H
+#ifndef LIB__VECTOR_K_H_
+#define LIB__VECTOR_K_H_
 
 #include <stddef.h>
 #include <lib/alloc.k.h>

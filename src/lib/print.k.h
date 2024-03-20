@@ -1,5 +1,5 @@
-#ifndef _LIB__PRINT_K_H
-#define _LIB__PRINT_K_H
+#ifndef LIB__PRINT_K_H_
+#define LIB__PRINT_K_H_
 
 #include <stdarg.h>
 #include <stddef.h>

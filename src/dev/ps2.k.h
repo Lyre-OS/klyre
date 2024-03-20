@@ -1,5 +1,5 @@
-#ifndef _DEV__PS2_K_H
-#define _DEV__PS2_K_H
+#ifndef DEV__PS2_K_H_
+#define DEV__PS2_K_H_
 
 #include <stdint.h>
 

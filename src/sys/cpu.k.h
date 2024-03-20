@@ -1,5 +1,5 @@
-#ifndef _SYS__CPU_K_H
-#define _SYS__CPU_K_H
+#ifndef SYS__CPU_K_H_
+#define SYS__CPU_K_H_
 
 #include <stdint.h>
 #include <stddef.h>

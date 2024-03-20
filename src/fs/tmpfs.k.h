@@ -1,5 +1,5 @@
-#ifndef _FS__TMPFS_K_H
-#define _FS__TMPFS_K_H
+#ifndef FS__TMPFS_K_H_
+#define FS__TMPFS_K_H_
 
 void tmpfs_init(void);
 

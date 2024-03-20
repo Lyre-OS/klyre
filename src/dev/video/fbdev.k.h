@@ -1,5 +1,5 @@
-#ifndef _DEV__VIDEO__FBDEV_K_H
-#define _DEV__VIDEO__FBDEV_K_H
+#ifndef DEV__VIDEO__FBDEV_K_H_
+#define DEV__VIDEO__FBDEV_K_H_
 
 void fbdev_init(void);
 

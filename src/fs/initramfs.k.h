@@ -1,5 +1,5 @@
-#ifndef _FS__INITRAMFS_K_H
-#define _FS__INITRAMFS_K_H
+#ifndef FS__INITRAMFS_K_H_
+#define FS__INITRAMFS_K_H_
 
 void initramfs_init(void);
 

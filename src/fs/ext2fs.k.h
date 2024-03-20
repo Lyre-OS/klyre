@@ -1,5 +1,5 @@
-#ifndef _FS__EXT2FS_K_H
-#define _FS__EXT2FS_K_H
+#ifndef FS__EXT2FS_K_H_
+#define FS__EXT2FS_K_H_
 
 #include <fs/vfs/vfs.k.h>
 #include <lib/resource.k.h>

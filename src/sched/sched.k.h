@@ -1,5 +1,5 @@
-#ifndef _SCHED__SCHED_K_H
-#define _SCHED__SCHED_K_H
+#ifndef SCHED__SCHED_K_H_
+#define SCHED__SCHED_K_H_
 
 #include <stdbool.h>
 #include <stdnoreturn.h>

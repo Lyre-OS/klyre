@@ -1,5 +1,5 @@
-#ifndef _SCHED__PROC_K_H
-#define _SCHED__PROC_K_H
+#ifndef SCHED__PROC_K_H_
+#define SCHED__PROC_K_H_
 
 #include <stddef.h>
 #include <stdint.h>

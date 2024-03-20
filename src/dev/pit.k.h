@@ -1,5 +1,5 @@
-#ifndef _DEV__PIT_K_H
-#define _DEV__PIT_K_H
+#ifndef DEV__PIT_K_H_
+#define DEV__PIT_K_H_
 
 #include <stdint.h>
 

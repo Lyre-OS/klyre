@@ -1,5 +1,5 @@
-#ifndef _DEV__NET__LOOPBACK_K_H
-#define _DEV__NET__LOOPBACK_K_H
+#ifndef DEV__NET__LOOPBACK_K_H_
+#define DEV__NET__LOOPBACK_K_H_
 
 void loopback_init(void);
 

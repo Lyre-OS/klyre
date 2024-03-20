@@ -1,5 +1,5 @@
-#ifndef _IPC__SOCKET_K_H
-#define _IPC__SOCKET_K_H
+#ifndef IPC__SOCKET_K_H_
+#define IPC__SOCKET_K_H_
 
 #include <stdbool.h>
 #include <stdint.h>

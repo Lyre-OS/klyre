@@ -1,5 +1,5 @@
-#ifndef _MM__PMM_K_H
-#define _MM__PMM_K_H
+#ifndef MM__PMM_K_H_
+#define MM__PMM_K_H_
 
 #include <stddef.h>
 #include <limine.h>

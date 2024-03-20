@@ -1,5 +1,5 @@
-#ifndef _DEV__IOAPIC_K_H
-#define _DEV__IOAPIC_K_H
+#ifndef DEV__IOAPIC_K_H_
+#define DEV__IOAPIC_K_H_
 
 #include <stdbool.h>
 #include <stddef.h>

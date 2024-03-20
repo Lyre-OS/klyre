@@ -1,5 +1,5 @@
-#ifndef _LIB__TRACE_K_H
-#define _LIB__TRACE_K_H
+#ifndef LIB__TRACE_K_H_
+#define LIB__TRACE_K_H_
 
 #include <stdint.h>
 #include <stddef.h>

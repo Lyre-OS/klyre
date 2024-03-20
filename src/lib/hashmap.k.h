@@ -1,5 +1,5 @@
-#ifndef _LIB__HASHMAP_K_H
-#define _LIB__HASHMAP_K_H
+#ifndef LIB__HASHMAP_K_H_
+#define LIB__HASHMAP_K_H_
 
 #include <stdint.h>
 #include <stddef.h>

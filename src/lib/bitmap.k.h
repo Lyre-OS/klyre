@@ -1,5 +1,5 @@
-#ifndef _LIB__BITMAP_K_H
-#define _LIB__BITMAP_K_H
+#ifndef LIB__BITMAP_K_H_
+#define LIB__BITMAP_K_H_
 
 #include <stdbool.h>
 #include <stddef.h>

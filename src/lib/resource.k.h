@@ -1,5 +1,5 @@
-#ifndef _LIB__RESOURCE_K_H
-#define _LIB__RESOURCE_K_H
+#ifndef LIB__RESOURCE_K_H_
+#define LIB__RESOURCE_K_H_
 
 #include <stdbool.h>
 #include <stddef.h>

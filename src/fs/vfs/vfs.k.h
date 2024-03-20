@@ -1,5 +1,5 @@
-#ifndef _FS__VFS__VFS_K_H
-#define _FS__VFS__VFS_K_H
+#ifndef FS__VFS__VFS_K_H_
+#define FS__VFS__VFS_K_H_
 
 #include <stdbool.h>
 #include <lib/resource.k.h>

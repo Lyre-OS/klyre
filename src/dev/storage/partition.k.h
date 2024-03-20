@@ -1,5 +1,5 @@
-#ifndef _DEV__STORAGE__PARTITION_K_H
-#define _DEV__STORAGE__PARTITION_K_H
+#ifndef DEV__STORAGE__PARTITION_K_H_
+#define DEV__STORAGE__PARTITION_K_H_
 
 #include <lib/resource.k.h>
 #include <stdint.h>

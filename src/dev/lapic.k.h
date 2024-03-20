@@ -1,5 +1,5 @@
-#ifndef _DEV__LAPIC_K_H
-#define _DEV__LAPIC_K_H
+#ifndef DEV__LAPIC_K_H_
+#define DEV__LAPIC_K_H_
 
 #include <stdint.h>
 

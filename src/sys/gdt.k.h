@@ -1,5 +1,5 @@
-#ifndef _SYS__GDT_K_H
-#define _SYS__GDT_K_H
+#ifndef SYS__GDT_K_H_
+#define SYS__GDT_K_H_
 
 #include <stdint.h>
 #include <sys/cpu.k.h>
