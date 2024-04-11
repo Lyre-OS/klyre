@@ -456,12 +456,15 @@ void console_init(void) {
             alloc,
             (void *)free,
             fb->address, fb->width, fb->height, fb->pitch,
+            fb->red_mask_size, fb->red_mask_shift,
+            fb->green_mask_size, fb->green_mask_shift,
+            fb->blue_mask_size, fb->blue_mask_shift,
             NULL,
             NULL, NULL,
             NULL, NULL,
             NULL, NULL,
             NULL, 0, 0, 1,
-            1, 1,
+            0, 0,
             0
         );
 
