@@ -12,7 +12,7 @@ FREESTANDING_HEADERS_COMMIT_HASH=dd3abd2d7147efc4170dff478d3b7730bed14147
 CC_RUNTIME_COMMIT_HASH=38942e9a0d11af77c5d9fb45794850f7a1565d2b
 FLANTERM_COMMIT_HASH=347d9cf1e3fced64aa20ab278e2fdcc834086035
 PRINTF_COMMIT_HASH=ce439cbe5d7e041db2f1160ca50f19502b56ca98
-MLIBC_COMMIT_HASH=f15d58a8aa753a9a41c668d7f44e5996aee9da4c
+MLIBC_COMMIT_HASH=f52bd4e790ba67714cc97e9de2d1cd750e58c00f
 
 AUXFILES="install-sh"
 
@@ -46,16 +46,15 @@ if ! [ -f version ]; then
     mkdir -p src/printf
     cp -pv printf/src/printf/* src/printf
 
-    clone_repo_commit https://github.com/mintsuki/mlibc.git mlibc $MLIBC_COMMIT_HASH
+    clone_repo_commit https://github.com/managarm/mlibc.git mlibc $MLIBC_COMMIT_HASH
+    # XXX remove if upstreamed
+    ( cd mlibc && patch -p1 < ../../patches/mlibc/jinx-working-patch.patch )
     mkdir -p mlibc-build
     cd mlibc-build
     meson setup \
         --cross-file ../cross_file.txt \
         --prefix=/ \
         -Dheaders_only=true \
-        -Ddisable_crypt_option=true \
-        -Ddisable_iconv_option=true \
-        -Ddisable_intl_option=true \
         ../mlibc
     ninja
     mkdir ../mlibc-headers-out

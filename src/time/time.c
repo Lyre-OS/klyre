@@ -12,6 +12,7 @@
 #include <time/time.k.h>
 #include <dev/pit.k.h>
 #include <sched/sched.k.h>
+#include <time.h>
 
 static volatile struct limine_boot_time_request boot_time_request = {
     .id = LIMINE_BOOT_TIME_REQUEST,
