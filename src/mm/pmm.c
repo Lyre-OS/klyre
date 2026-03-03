@@ -11,7 +11,7 @@
 #include <mm/vmm.k.h>
 
 volatile struct limine_memmap_request memmap_request = {
-    .id = LIMINE_MEMMAP_REQUEST,
+    .id = LIMINE_MEMMAP_REQUEST_ID,
     .revision = 0
 };
 
@@ -47,7 +47,7 @@ void pmm_init(void) {
             case LIMINE_MEMMAP_ACPI_RECLAIMABLE:
             case LIMINE_MEMMAP_ACPI_NVS:
             case LIMINE_MEMMAP_BOOTLOADER_RECLAIMABLE:
-            case LIMINE_MEMMAP_KERNEL_AND_MODULES:
+            case LIMINE_MEMMAP_EXECUTABLE_AND_MODULES:
                 reserved_pages += DIV_ROUNDUP(entry->length, PAGE_SIZE);
                 break;
         }

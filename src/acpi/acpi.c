@@ -10,7 +10,7 @@
 #include <acpi/madt.k.h>
 
 static volatile struct limine_rsdp_request rsdp_request = {
-    .id = LIMINE_RSDP_REQUEST,
+    .id = LIMINE_RSDP_REQUEST_ID,
     .revision = 0
 };
 

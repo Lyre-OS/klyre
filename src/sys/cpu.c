@@ -27,16 +27,16 @@ size_t cpu_count = 0;
 
 static size_t cpus_started_i = 0;
 
-static volatile struct limine_smp_request smp_request = {
-    .id = LIMINE_SMP_REQUEST,
+static volatile struct limine_mp_request mp_request = {
+    .id = LIMINE_MP_REQUEST_ID,
     .revision = 0
 };
 
-static void single_cpu_init(struct limine_smp_info *smp_info) {
-    struct cpu_local *cpu_local = (void *)smp_info->extra_argument;
+static void single_cpu_init(struct limine_mp_info *mp_info) {
+    struct cpu_local *cpu_local = (void *)mp_info->extra_argument;
     int cpu_number = cpu_local->cpu_number;
 
-    cpu_local->lapic_id = smp_info->lapic_id;
+    cpu_local->lapic_id = mp_info->lapic_id;
 
     gdt_reload();
     idt_reload();
@@ -176,7 +176,7 @@ static void single_cpu_init(struct limine_smp_info *smp_info) {
 }
 
 uint32_t bsp_lapic_id;
-bool smp_started = false;
+bool mp_started = false;
 
 static void sysenter_check_exception(uint8_t vector, struct cpu_ctx *ctx) {
     // If this was a #GP, we have sysenter
@@ -224,26 +224,26 @@ void cpu_init(void) {
         isr[0x0d] = old_gp_handler;
     }
 
-    struct limine_smp_response *smp_resp = smp_request.response;
+    struct limine_mp_response *mp_resp = mp_request.response;
 
-    ASSERT(smp_resp != NULL);
+    ASSERT(mp_resp != NULL);
 
-    kernel_print("cpu: %u processors detected\n", smp_resp->cpu_count);
+    kernel_print("cpu: %u processors detected\n", mp_resp->cpu_count);
 
-    cpu_count = smp_resp->cpu_count;
+    cpu_count = mp_resp->cpu_count;
 
     cpus = alloc(cpu_count * sizeof(struct cpu_local));
 
-    bsp_lapic_id = smp_resp->bsp_lapic_id;
+    bsp_lapic_id = mp_resp->bsp_lapic_id;
 
     for (size_t i = 0; i < cpu_count; i++) {
-        struct limine_smp_info *cpu = smp_resp->cpus[i];
+        struct limine_mp_info *cpu = mp_resp->cpus[i];
 
         struct cpu_local *cpu_local = &cpus[i];
         cpu->extra_argument = (uint64_t)cpu_local;
         cpu_local->cpu_number = i;
 
-        if (cpu->lapic_id != smp_resp->bsp_lapic_id) {
+        if (cpu->lapic_id != mp_resp->bsp_lapic_id) {
             cpu->goto_address = single_cpu_init;
         } else {
             cpu_local->bsp = true;
@@ -251,11 +251,11 @@ void cpu_init(void) {
         }
     }
 
-    while (cpus_started_i != smp_resp->cpu_count) {
+    while (cpus_started_i != mp_resp->cpu_count) {
         asm ("pause");
     }
 
-    smp_started = true;
+    mp_started = true;
 }
 
 struct cpu_local *this_cpu(void) {

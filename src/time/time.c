@@ -14,8 +14,8 @@
 #include <sched/sched.k.h>
 #include <time.h>
 
-static volatile struct limine_boot_time_request boot_time_request = {
-    .id = LIMINE_BOOT_TIME_REQUEST,
+static volatile struct limine_date_at_boot_request date_at_boot_request = {
+    .id = LIMINE_DATE_AT_BOOT_REQUEST_ID,
     .revision = 0
 };
 
@@ -67,9 +67,9 @@ cleanup:
 }
 
 void time_init(void) {
-    struct limine_boot_time_response *boot_time_resp = boot_time_request.response;
+    struct limine_date_at_boot_response *date_at_boot_resp = date_at_boot_request.response;
 
-    time_realtime.tv_sec = boot_time_resp->boot_time;
+    time_realtime.tv_sec = date_at_boot_resp->timestamp;
 
     pit_init();
 }

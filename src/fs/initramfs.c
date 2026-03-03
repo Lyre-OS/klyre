@@ -11,7 +11,7 @@
 #include <mm/vmm.k.h>
 
 static volatile struct limine_module_request module_request = {
-    .id = LIMINE_MODULE_REQUEST,
+    .id = LIMINE_MODULE_REQUEST_ID,
     .revision = 0
 };
 

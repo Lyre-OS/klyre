@@ -17,7 +17,7 @@ volatile size_t panic_cpu_counter = 0;
 noreturn void panic(struct cpu_ctx *ctx, bool trace, const char *fmt, ...) {
     interrupt_toggle(false);
 
-    if (smp_started) {
+    if (mp_started) {
         asm volatile ("lock incq (%0)" :: "r"(&panic_cpu_counter) : "memory" );
 
         spinlock_acquire_no_dead_check(&panic_lock);

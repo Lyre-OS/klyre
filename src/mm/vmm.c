@@ -14,12 +14,12 @@
 #include <mm/vmm.k.h>
 
 volatile struct limine_hhdm_request hhdm_request = {
-    .id = LIMINE_HHDM_REQUEST,
+    .id = LIMINE_HHDM_REQUEST_ID,
     .revision = 0
 };
 
-static volatile struct limine_kernel_address_request kaddr_request = {
-    .id = LIMINE_KERNEL_ADDRESS_REQUEST,
+static volatile struct limine_executable_address_request kaddr_request = {
+    .id = LIMINE_EXECUTABLE_ADDRESS_REQUEST_ID,
     .revision = 0
 };
 
@@ -70,7 +70,7 @@ void vmm_init(void) {
         rodata_end = ALIGN_UP((uintptr_t)rodata_end_addr, PAGE_SIZE),
         data_end = ALIGN_UP((uintptr_t)data_end_addr, PAGE_SIZE);
 
-    struct limine_kernel_address_response *kaddr = kaddr_request.response;
+    struct limine_executable_address_response *kaddr = kaddr_request.response;
 
     for (uintptr_t text_addr = text_start; text_addr < text_end; text_addr += PAGE_SIZE) {
         uintptr_t phys = text_addr - kaddr->virtual_base + kaddr->physical_base;

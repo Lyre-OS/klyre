@@ -64,7 +64,7 @@ if ! [ -f version ]; then
     mv mlibc-headers-out/include mlibc-headers
     rm -rf mlibc-build mlibc-headers-out
 
-    [ -f src/limine.h ] || curl -Lo src/limine.h https://github.com/limine-bootloader/limine/raw/trunk/limine.h
+    [ -f src/limine.h ] || curl -Lo src/limine.h https://codeberg.org/Limine/limine-protocol/raw/commit/fd3197997ec608484a2eb4e3d2a8591378087e7d/include/limine.h
 fi
 
 for auxfile in $AUXFILES; do

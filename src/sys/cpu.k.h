@@ -7,7 +7,7 @@
 
 extern bool sysenter;
 extern uint32_t bsp_lapic_id;
-extern bool smp_started;
+extern bool mp_started;
 
 struct thread;
 
