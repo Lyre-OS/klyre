@@ -200,6 +200,7 @@ struct pagemap *vmm_fork_pagemap(struct pagemap *pagemap) {
             new_global_range->res = global_range->res;
             new_global_range->offset = global_range->offset;
 
+            new_local_range->global = new_global_range;
             VECTOR_PUSH_BACK(&new_global_range->locals, new_local_range);
 
             if ((local_range->flags & MAP_ANONYMOUS) != 0) {
