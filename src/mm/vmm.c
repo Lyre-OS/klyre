@@ -272,6 +272,11 @@ void vmm_destroy_pagemap(struct pagemap *pagemap) {
     while (pagemap->mmap_ranges.length > 0) {
         struct mmap_range_local *local_range = pagemap->mmap_ranges.data[0];
 
+        if (local_range->length == 0) {
+            VECTOR_REMOVE(&pagemap->mmap_ranges, 0);
+            continue;
+        }
+
         munmap(pagemap, local_range->base, local_range->length);
     }
 
