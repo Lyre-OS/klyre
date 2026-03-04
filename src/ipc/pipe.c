@@ -239,12 +239,15 @@ int syscall_pipe(void *_, int pipe_fdnums[static 2], int flags) {
 
     int read_fd = fdnum_create_from_resource(proc, pipe, flags | O_RDONLY, 0, false);
     if (read_fd < 0) {
+        free(((struct pipe *)pipe)->data);
         free(pipe);
         goto cleanup;
     }
 
     int write_fd = fdnum_create_from_resource(proc, pipe, flags | O_WRONLY, 0, false);
     if (write_fd < 0) {
+        fdnum_close(proc, read_fd, true);
+        free(((struct pipe *)pipe)->data);
         free(pipe);
         goto cleanup;
     }
