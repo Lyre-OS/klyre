@@ -134,14 +134,11 @@ static bool tmpfs_truncate(struct resource *this_, struct f_description *descrip
             new_capacity *= 2;
         }
 
-        void *new_data = alloc(new_capacity);
+        void *new_data = realloc(this->data, new_capacity);
         if (new_data == NULL) {
             errno = ENOMEM;
             goto fail;
         }
-
-        memcpy(new_data, this->data, this->capacity);
-        free(this->data);
 
         this->data = new_data;
         this->capacity = new_capacity;
