@@ -64,6 +64,8 @@ int syscall_futex_wait(void *_, int *ptr, int expected) {
         goto cleanup;
     }
 
+    ret = 0;
+
 cleanup:
     DEBUG_SYSCALL_LEAVE("%d", ret);
     return ret;
