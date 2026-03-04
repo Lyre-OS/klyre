@@ -665,6 +665,12 @@ int syscall_exec(void *_, const char *path, const char **argv, const char **envp
         goto fail;
     }
 
+    for (int i = 0; i < MAX_FDS; i++) {
+        if (proc->fds[i] != NULL && (proc->fds[i]->flags & O_CLOEXEC) != 0) {
+            fdnum_close(proc, i, true);
+        }
+    }
+
     struct pagemap *old_pagemap = proc->pagemap;
 
     proc->pagemap = new_pagemap;
