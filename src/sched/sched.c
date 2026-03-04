@@ -605,7 +605,7 @@ int syscall_fork(struct cpu_ctx *ctx) {
 
     void *pf_stack_phys = pmm_alloc(STACK_SIZE / PAGE_SIZE);
     VECTOR_PUSH_BACK(&new_thread->stacks, pf_stack_phys);
-    new_thread->pf_stack = kernel_stack_phys + STACK_SIZE + VMM_HIGHER_HALF;
+    new_thread->pf_stack = pf_stack_phys + STACK_SIZE + VMM_HIGHER_HALF;
 
     new_thread->ctx = *ctx;
 
