@@ -826,6 +826,8 @@ int syscall_linkat(void *_, int olddir_fdnum, const char *old_path, int newdir_f
     DEBUG_SYSCALL_ENTER("linkat(%d, %s, %d, %s, %x)", olddir_fdnum, old_path, newdir_fdnum, new_path, flags);
 
     int ret = -1;
+    struct path2node_res old_res = {0};
+    struct path2node_res new_res = {0};
 
     if (old_path == NULL || strlen(old_path) == 0) {
         errno = ENOENT;
@@ -842,8 +844,8 @@ int syscall_linkat(void *_, int olddir_fdnum, const char *old_path, int newdir_f
         goto cleanup;
     }
 
-    struct path2node_res old_res = path2node(old_parent, old_path);
-    struct path2node_res new_res = path2node(new_parent, new_path);
+    old_res = path2node(old_parent, old_path);
+    new_res = path2node(new_parent, new_path);
     if (old_res.target_parent->filesystem != new_res.target_parent->filesystem) {
         errno = EXDEV;
         goto cleanup;
