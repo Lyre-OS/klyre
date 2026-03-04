@@ -248,7 +248,7 @@ int fdnum_dup(struct process *old_proc, int old_fdnum, struct process *new_proc,
 
     new_fd->flags = flags & FILE_DESCRIPTOR_FLAGS_MASK;
     if (cloexec) {
-        new_fd->flags &= O_CLOEXEC;
+        new_fd->flags |= O_CLOEXEC;
     }
 
     old_fd->description->refcount++;
