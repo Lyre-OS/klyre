@@ -782,7 +782,7 @@ pid_t syscall_waitpid(void *_, int pid, int *status, int flags) {
             errno = EINTR;
             goto cleanup;
         } else {
-            errno = EINTR;
+            ret = 0;
             goto cleanup;
         }
     }

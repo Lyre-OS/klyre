@@ -66,8 +66,8 @@
     pop %rbp
     pop %r8
     pop %r9
-    pop %rcx
     pop %rdx
+    pop %rcx
     pop %r12
     pop %r13
     pop %r14
