@@ -64,9 +64,8 @@ bool mmap_handle_pf(struct cpu_ctx *ctx) {
     struct addr2range range = addr2range(pagemap, cr2);
     struct mmap_range_local *local_range = range.range;
 
-    spinlock_release(&pagemap->lock);
-
     if (local_range == NULL) {
+        spinlock_release(&pagemap->lock);
         return false;
     }
 
@@ -74,15 +73,18 @@ bool mmap_handle_pf(struct cpu_ctx *ctx) {
     if ((local_range->flags & MAP_ANONYMOUS) != 0) {
         page = pmm_alloc(1);
     } else {
-        struct resource *res = page = local_range->global->res;
+        struct resource *res = local_range->global->res;
         page = res->mmap(res, range.file_page, local_range->flags);
     }
 
     if (page == NULL) {
+        spinlock_release(&pagemap->lock);
         return false;
     }
 
-    return mmap_page_in_range(local_range->global, range.memory_page * PAGE_SIZE, (uintptr_t)page, local_range->prot);
+    bool ret = mmap_page_in_range(local_range->global, range.memory_page * PAGE_SIZE, (uintptr_t)page, local_range->prot);
+    spinlock_release(&pagemap->lock);
+    return ret;
 }
 
 bool mmap_page_in_range(struct mmap_range_global *global, uintptr_t virt,
