@@ -765,7 +765,7 @@ pid_t syscall_waitpid(void *_, int pid, int *status, int flags) {
 
         child = VECTOR_ITEM(&processes, pid);
 
-        if ((ssize_t)child == VECTOR_INVALID_INDEX || child->ppid != proc->pid) {
+        if ((ssize_t)child == VECTOR_INVALID_INDEX || child == NULL || child->ppid != proc->pid) {
             errno = ECHILD;
             goto cleanup;
         }
@@ -796,7 +796,7 @@ pid_t syscall_waitpid(void *_, int pid, int *status, int flags) {
     VECTOR_REMOVE_BY_VALUE(&proc->child_events, &child->event);
     VECTOR_REMOVE_BY_VALUE(&proc->children, child);
 
-    VECTOR_REMOVE_BY_VALUE(&processes, child);
+    processes.data[child->pid] = NULL;
 
     ret = child->pid;
 
