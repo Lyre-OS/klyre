@@ -16,6 +16,7 @@
 #include <mm/vmm.k.h>
 #include <sched/proc.k.h>
 #include <fs/vfs/vfs.k.h>
+#include <dev/char/serial.k.h>
 #include <sys/cpu.k.h>
 
 struct addr2range {
@@ -40,7 +41,9 @@ struct addr2range addr2range(struct pagemap *pagemap, uintptr_t virt) {
 }
 
 void mmap_list_ranges(struct pagemap *pagemap) {
-    kernel_print("Memory map:\n");
+    char buf[256];
+
+    serial_outstr("Memory map:\n");
 
     VECTOR_FOR_EACH(&pagemap->mmap_ranges, it,
         struct mmap_range_local *local_range = *it;
@@ -54,10 +57,11 @@ void mmap_list_ranges(struct pagemap *pagemap) {
         const char *type = (local_range->flags & MAP_ANONYMOUS) ? "anon" : "file";
         const char *name = global->name != NULL ? global->name : "";
 
-        kernel_print("  %016lx-%016lx %s %s off=%lx %s\n",
+        snprintf(buf, sizeof(buf), "  %016lx-%016lx %s %s off=%lx %s\n",
             local_range->base,
             local_range->base + local_range->length,
             prot_str, type, local_range->offset, name);
+        serial_outstr(buf);
     );
 }
 
