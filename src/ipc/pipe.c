@@ -69,7 +69,8 @@ static ssize_t pipe_read(struct resource *_this, struct f_description *descripti
         }
 
         if ((description->flags & O_NONBLOCK) != 0) {
-            ret = 0;
+            errno = EAGAIN;
+            ret = -1;
             goto cleanup;
         }
 
@@ -78,8 +79,7 @@ static ssize_t pipe_read(struct resource *_this, struct f_description *descripti
         struct event *events[] = {&this->event};
         if (event_await(events, 1, true) < 0) {
             errno = EINTR;
-            ret = -1;
-            goto cleanup;
+            return -1;
         }
 
         spinlock_acquire(&this->lock);
@@ -148,8 +148,7 @@ static ssize_t pipe_write(struct resource *_this, struct f_description *descript
         struct event *events[] = {&this->event};
         if (event_await(events, 1, true) < 0) {
             errno = EINTR;
-            ret = -1;
-            goto cleanup;
+            return -1;
         }
 
         spinlock_acquire(&this->lock);
