@@ -102,7 +102,7 @@ void timer_handler(void) {
 }
 
 void time_nsleep(uint64_t ns) {
-    struct timespec duration = { .tv_sec = ns / 1000000000, .tv_nsec = ns };
+    struct timespec duration = { .tv_sec = ns / 1000000000, .tv_nsec = ns % 1000000000 };
     struct timer *timer = NULL;
 
     timer = timer_new(duration);
@@ -132,7 +132,7 @@ int syscall_sleep(void *_, struct timespec *duration, struct timespec *remaining
         goto cleanup;
     }
 
-    if (duration->tv_nsec < 0 || duration->tv_nsec < 0 || duration->tv_nsec > 1000000000) {
+    if (duration->tv_sec < 0 || duration->tv_nsec < 0 || duration->tv_nsec > 1000000000) {
         errno = EINVAL;
         goto cleanup;
     }
