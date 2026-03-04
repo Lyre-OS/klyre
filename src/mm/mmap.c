@@ -194,6 +194,10 @@ int mprotect(struct pagemap *pagemap, uintptr_t addr, size_t length, int prot) {
     for (uintptr_t i = addr; i < addr + length; i += PAGE_SIZE) {
         struct mmap_range_local *local_range = addr2range(pagemap, i).range;
 
+        if (local_range == NULL) {
+            continue;
+        }
+
         if (local_range->prot == prot) {
             continue;
         }
@@ -434,7 +438,9 @@ bool munmap(struct pagemap *pagemap, uintptr_t addr, size_t length) {
                 // TODO: res->unmap();
             }
 
+            vmm_destroy_pagemap(global_range->shadow_pagemap);
             free(local_range);
+            free(global_range);
         } else {
             if (snip_begin == local_range->base) {
                 local_range->offset += snip_length;
