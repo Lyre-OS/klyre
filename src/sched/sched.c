@@ -635,8 +635,20 @@ int syscall_fork(struct cpu_ctx *ctx) {
     goto cleanup;
 
 fail:
-    // TODO: Properly clean up
-    free(new_proc);
+    if (new_proc != NULL) {
+        for (int i = 0; i < MAX_FDS; i++) {
+            fdnum_close(new_proc, i, true);
+        }
+        if (new_proc->pagemap != NULL) {
+            vmm_destroy_pagemap(new_proc->pagemap);
+        }
+        VECTOR_REMOVE_BY_VALUE(&proc->children, new_proc);
+        VECTOR_REMOVE_BY_VALUE(&proc->child_events, &new_proc->event);
+        if ((size_t)new_proc->pid < processes.length) {
+            processes.data[new_proc->pid] = NULL;
+        }
+        free(new_proc);
+    }
 
 cleanup:
     DEBUG_SYSCALL_LEAVE("%d", ret);
