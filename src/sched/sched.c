@@ -426,7 +426,7 @@ struct thread *sched_new_user_thread(struct process *proc, void *pc, void *arg, 
             goto fail;
         }
 
-        proc->thread_stack_top -= STACK_SIZE - PAGE_SIZE;
+        proc->thread_stack_top -= STACK_SIZE + PAGE_SIZE;
     } else {
         stack = sp;
         stack_vma = sp;
@@ -779,7 +779,7 @@ pid_t syscall_waitpid(void *_, int pid, int *status, int flags) {
     ssize_t which = event_await(events, event_num, block);
     if (which == -1) {
         if (block) {
-            ret = 0;
+            errno = EINTR;
             goto cleanup;
         } else {
             errno = EINTR;
