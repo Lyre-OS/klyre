@@ -138,8 +138,9 @@ void *pmm_alloc_nozero(size_t pages) {
         ret = inner_alloc(pages, last);
     }
 
-    // TODO: Check if ret is null and panic
-    used_pages += pages;
+    if (ret != NULL) {
+        used_pages += pages;
+    }
 
     spinlock_release(&lock);
     return ret;
