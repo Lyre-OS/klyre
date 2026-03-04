@@ -15,6 +15,6 @@ struct auxval {
 };
 
 bool elf_load(struct pagemap *pagemap, struct resource *res, uint64_t load_base,
-              struct auxval *auxv, const char **ld_path);
+              struct auxval *auxv, const char **ld_path, const char *name);
 
 #endif

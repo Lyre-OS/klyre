@@ -67,10 +67,10 @@ void kmain_thread(void) {
     const char *ld_path;
 
     struct vfs_node *init_node = vfs_get_node(vfs_root, "/usr/bin/init", true);
-    elf_load(init_vm, init_node->resource, 0x0, &init_auxv, &ld_path);
+    elf_load(init_vm, init_node->resource, 0x0, &init_auxv, &ld_path, "/usr/bin/init");
 
     struct vfs_node *ld = vfs_get_node(vfs_root, ld_path, true);
-    elf_load(init_vm, ld->resource, 0x40000000, &ld_auxv, NULL);
+    elf_load(init_vm, ld->resource, 0x40000000, &ld_auxv, NULL, ld_path);
 
     const char *argv[] = {"/usr/bin/init", NULL};
     const char *envp[] = {NULL};

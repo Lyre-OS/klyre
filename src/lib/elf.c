@@ -12,7 +12,7 @@
 #include <mm/vmm.k.h>
 
 bool elf_load(struct pagemap *pagemap, struct resource *res, uint64_t load_base,
-              struct auxval *auxv, const char **ld_path) {
+              struct auxval *auxv, const char **ld_path, const char *name) {
     Elf64_Ehdr header;
     if (res->read(res, NULL, &header, 0, sizeof(header)) < 0) {
         return false;
@@ -53,8 +53,10 @@ bool elf_load(struct pagemap *pagemap, struct resource *res, uint64_t load_base,
                     goto fail;
                 }
 
+                off_t file_offset = phdr.p_offset - misalign;
                 if (!mmap_range(pagemap, phdr.p_vaddr + load_base, (uintptr_t)phys,
-                                page_count * PAGE_SIZE, prot, MAP_ANONYMOUS)) {
+                                page_count * PAGE_SIZE, prot, MAP_ANONYMOUS, name,
+                                res, file_offset)) {
                     pmm_free(phys, page_count);
                     goto fail;
                 }
@@ -62,25 +64,6 @@ bool elf_load(struct pagemap *pagemap, struct resource *res, uint64_t load_base,
                 if (res->read(res, NULL, phys + misalign + VMM_HIGHER_HALF, phdr.p_offset, phdr.p_filesz) < 0) {
                     goto fail;
                 }
-
-                // TODO: Figure out why mmap-ing the file breaks stuff
-                // uintptr_t virt_start = ALIGN_DOWN(phdr.p_vaddr, PAGE_SIZE);
-                // uintptr_t virt_end = ALIGN_UP(phdr.p_vaddr + phdr.p_memsz, PAGE_SIZE);
-                // uintptr_t virt_file_end = ALIGN_UP(phdr.p_vaddr + phdr.p_filesz, PAGE_SIZE);
-
-                // size_t misalign = phdr.p_vaddr - virt_start;
-
-                // if (mmap(pagemap, virt_start + load_base, phdr.p_filesz + misalign, prot,
-                //          MAP_PRIVATE | MAP_FIXED, res, phdr.p_offset + misalign) == NULL) {
-                //     goto fail;
-                // }
-
-                // if (virt_end > virt_file_end) {
-                //     if (mmap(pagemap, virt_file_end, virt_end - virt_file_end, prot,
-                //              MAP_PRIVATE | MAP_FIXED | MAP_ANONYMOUS, NULL, 0) == NULL) {
-                //         goto fail;
-                //     }
-                // }
 
                 break;
             }
