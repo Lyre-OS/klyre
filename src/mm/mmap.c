@@ -251,6 +251,11 @@ int mprotect(struct pagemap *pagemap, uintptr_t addr, size_t length, int prot) {
         }
         local_range->length -= snip_size;
 
+        if (local_range->length == 0) {
+            VECTOR_REMOVE_BY_VALUE(&pagemap->mmap_ranges, local_range);
+            free(local_range);
+        }
+
         struct mmap_range_local *new_range = ALLOC(struct mmap_range_local);
 
         new_range->pagemap = local_range->pagemap;
