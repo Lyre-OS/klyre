@@ -339,13 +339,19 @@ ssize_t syscall_read(void *_, int fdnum, void *buf, size_t count) {
     struct f_description *description = fd->description;
     struct resource *res = description->res;
 
-    ret = res->read(res, description, buf, description->offset, count);
-    if (ret < 0) {
-        ret = -1;
-        goto cleanup;
+    bool seekable = !S_ISCHR(res->stat.st_mode) && !S_ISFIFO(res->stat.st_mode) && !S_ISSOCK(res->stat.st_mode);
+    if (seekable) {
+        spinlock_acquire(&description->lock);
     }
-
-    description->offset += ret;
+    ret = res->read(res, description, buf, description->offset, count);
+    if (ret >= 0) {
+        description->offset += ret;
+    } else {
+        ret = -1;
+    }
+    if (seekable) {
+        spinlock_release(&description->lock);
+    }
 
 cleanup:
     DEBUG_SYSCALL_LEAVE("%lld", ret);
@@ -370,13 +376,19 @@ ssize_t syscall_write(void *_, int fdnum, const void *buf, size_t count) {
     struct f_description *description = fd->description;
     struct resource *res = description->res;
 
-    ret = res->write(res, description, buf, description->offset, count);
-    if (ret < 0) {
-        ret = -1;
-        goto cleanup;
+    bool seekable = !S_ISCHR(res->stat.st_mode) && !S_ISFIFO(res->stat.st_mode) && !S_ISSOCK(res->stat.st_mode);
+    if (seekable) {
+        spinlock_acquire(&description->lock);
     }
-
-    description->offset += ret;
+    ret = res->write(res, description, buf, description->offset, count);
+    if (ret >= 0) {
+        description->offset += ret;
+    } else {
+        ret = -1;
+    }
+    if (seekable) {
+        spinlock_release(&description->lock);
+    }
 
 cleanup:
     DEBUG_SYSCALL_LEAVE("%lld", ret);
