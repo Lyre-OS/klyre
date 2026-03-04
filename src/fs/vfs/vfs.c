@@ -430,8 +430,13 @@ size_t vfs_pathname(struct vfs_node *node, char *buffer, size_t len) {
     }
 
     if (strcmp(node->name, "/") != 0) {
-        strncpy(buffer + offset, node->name, len - offset);
-        return strlen(node->name) + offset;
+        size_t name_len = strlen(node->name);
+        size_t remaining = (offset < len) ? len - offset : 0;
+        if (name_len > remaining) {
+            name_len = remaining;
+        }
+        memcpy(buffer + offset, node->name, name_len);
+        return offset + name_len;
     } else {
         return offset;
     }
