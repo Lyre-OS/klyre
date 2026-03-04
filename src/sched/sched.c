@@ -286,6 +286,10 @@ noreturn void sched_dequeue_and_die(void) {
 
 static VECTOR_TYPE(struct process *) processes = VECTOR_INIT;
 
+struct process *sched_get_process(int pid) {
+    return VECTOR_ITEM(&processes, pid);
+}
+
 struct process *sched_new_process(struct process *old_proc, struct pagemap *pagemap) {
     struct process *new_proc = ALLOC(struct process);
     if (new_proc == NULL) {
@@ -421,7 +425,8 @@ struct thread *sched_new_user_thread(struct process *proc, void *pc, void *arg, 
         stack = stack_phys + STACK_SIZE + VMM_HIGHER_HALF;
         stack_vma = (void *)proc->thread_stack_top;
         if (!mmap_range(proc->pagemap, proc->thread_stack_top - STACK_SIZE, (uintptr_t)stack_phys,
-                        STACK_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS)) {
+                        STACK_SIZE, PROT_READ | PROT_WRITE, MAP_ANONYMOUS, "[stack]",
+                        NULL, 0)) {
             pmm_free(stack_phys, STACK_SIZE / PAGE_SIZE);
             goto fail;
         }
@@ -668,12 +673,12 @@ int syscall_exec(void *_, const char *path, const char **argv, const char **envp
     const char *ld_path = NULL;
 
     struct vfs_node *node = vfs_get_node(proc->cwd, path, true);
-    if (node == NULL || !elf_load(new_pagemap, node->resource, 0x0, &auxv, &ld_path)) {
+    if (node == NULL || !elf_load(new_pagemap, node->resource, 0x0, &auxv, &ld_path, path)) {
         goto fail;
     }
 
     struct vfs_node *ld_node = vfs_get_node(vfs_root, ld_path, true);
-    if (ld_node == NULL || !elf_load(new_pagemap, ld_node->resource, 0x40000000, &ld_auxv, NULL)) {
+    if (ld_node == NULL || !elf_load(new_pagemap, ld_node->resource, 0x40000000, &ld_auxv, NULL, ld_path)) {
         goto fail;
     }
 

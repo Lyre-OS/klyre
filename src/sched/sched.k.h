@@ -9,6 +9,7 @@
 #define MAX_RUNNING_THREADS 65536
 
 extern struct process *kernel_process;
+struct process *sched_get_process(int pid);
 
 void sched_init(void);
 noreturn void sched_await(void);
