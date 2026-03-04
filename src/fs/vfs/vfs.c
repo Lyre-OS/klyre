@@ -131,6 +131,7 @@ static struct path2node_res path2node(struct vfs_node *parent, const char *path)
             if (last) {
                 return (struct path2node_res){current_node, NULL, elem_str};
             }
+            free(elem_str);
             return (struct path2node_res){NULL, NULL, NULL};
         }
 
@@ -147,6 +148,7 @@ static struct path2node_res path2node(struct vfs_node *parent, const char *path)
             return (struct path2node_res){current_node, new_node, elem_str};
         }
 
+        free(elem_str);
         current_node = new_node;
 
         if (S_ISLNK(current_node->resource->stat.st_mode)) {
@@ -443,7 +445,7 @@ bool vfs_fdnum_path_to_node(int dir_fdnum, const char *path, bool empty_path, bo
     }
 
     struct vfs_node *parent_node = get_parent_dir(dir_fdnum, path);
-    if (parent == NULL) {
+    if (parent_node == NULL) {
         return false;
     }
 
