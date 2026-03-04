@@ -81,7 +81,7 @@ void random_seed(uint64_t seed) {
     index = MT_N;
     mt[0] = seed;
 
-    for (int i = 1; i < MT_N - 1; i++) {
+    for (int i = 1; i < MT_N; i++) {
         mt[i] = MT_F * (mt[i - 1] ^ (mt[i - 1] >> (MT_W - 2))) + i;
     }
 
