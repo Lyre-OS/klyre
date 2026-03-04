@@ -303,8 +303,6 @@ struct f_descriptor *fd_from_fdnum(struct process *proc, int fdnum) {
         goto cleanup;
     }
 
-    ret->description->refcount++;
-
 cleanup:
     spinlock_release(&proc->fds_lock);
     return ret;
@@ -613,8 +611,6 @@ int syscall_ppoll(void *_, struct pollfd *fds, nfds_t nfds, const struct timespe
         if (((uint16_t)status & pollfd->events) != 0) {
             pollfd->revents = (uint16_t)status & pollfd->events;
             ret++;
-            // unref fd
-            fd->refcount--;
             continue;
         }
 
@@ -667,10 +663,6 @@ int syscall_ppoll(void *_, struct pollfd *fds, nfds_t nfds, const struct timespe
     }
 
 cleanup:
-    for (int i = 0; i < fd_count; i++) {
-        fd_list[i]->refcount--;
-    }
-
     if (timer != NULL) {
         timer_disarm(timer);
         free(timer);
