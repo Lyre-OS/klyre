@@ -449,7 +449,10 @@ bool vfs_fdnum_path_to_node(int dir_fdnum, const char *path, bool empty_path, bo
         return false;
     }
 
+    spinlock_acquire(&vfs_lock);
     struct path2node_res res = path2node(parent_node, path);
+    spinlock_release(&vfs_lock);
+
     if (res.target == NULL && (errno == ENOENT && enoent_error)) {
         return false;
     }
@@ -856,6 +859,12 @@ int syscall_linkat(void *_, int olddir_fdnum, const char *old_path, int newdir_f
     ret = 0;
 
 cleanup:
+    if (old_res.basename != NULL) {
+        free(old_res.basename);
+    }
+    if (new_res.basename != NULL) {
+        free(new_res.basename);
+    }
     DEBUG_SYSCALL_LEAVE("%d", ret);
     return ret;
 }
