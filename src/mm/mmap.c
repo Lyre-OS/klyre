@@ -194,13 +194,16 @@ int mprotect(struct pagemap *pagemap, uintptr_t addr, size_t length, int prot) {
     length = ALIGN_UP(length, PAGE_SIZE);
 
     for (uintptr_t i = addr; i < addr + length; i += PAGE_SIZE) {
+        spinlock_acquire(&pagemap->lock);
         struct mmap_range_local *local_range = addr2range(pagemap, i).range;
 
         if (local_range == NULL) {
+            spinlock_release(&pagemap->lock);
             continue;
         }
 
         if (local_range->prot == prot) {
+            spinlock_release(&pagemap->lock);
             continue;
         }
 
@@ -213,8 +216,6 @@ int mprotect(struct pagemap *pagemap, uintptr_t addr, size_t length, int prot) {
         }
         uintptr_t snip_end = i;
         uintptr_t snip_size = snip_end - snip_begin;
-
-        spinlock_acquire(&pagemap->lock);
 
         if (snip_begin > local_range->base && snip_end < local_range->base + local_range->length) {
             struct mmap_range_local *postsplit_range = ALLOC(struct mmap_range_local);
@@ -246,6 +247,9 @@ int mprotect(struct pagemap *pagemap, uintptr_t addr, size_t length, int prot) {
         }
 
         uintptr_t new_offset = local_range->offset + (snip_begin - local_range->base);
+        struct pagemap *saved_pagemap = local_range->pagemap;
+        struct mmap_range_global *saved_global = local_range->global;
+        int saved_flags = local_range->flags;
 
         if (snip_begin == local_range->base) {
             local_range->offset += snip_size;
@@ -260,13 +264,13 @@ int mprotect(struct pagemap *pagemap, uintptr_t addr, size_t length, int prot) {
 
         struct mmap_range_local *new_range = ALLOC(struct mmap_range_local);
 
-        new_range->pagemap = local_range->pagemap;
-        new_range->global = local_range->global;
+        new_range->pagemap = saved_pagemap;
+        new_range->global = saved_global;
         new_range->base = snip_begin;
         new_range->length = snip_size;
         new_range->offset = new_offset;
         new_range->prot = prot;
-        new_range->flags = local_range->flags;
+        new_range->flags = saved_flags;
 
         VECTOR_PUSH_BACK(&pagemap->mmap_ranges, new_range);
 
