@@ -192,8 +192,8 @@ static int tty_ioctl(struct resource *_this, struct f_description *description, 
 }
 
 static void add_to_buf_char(char c, bool echo) {
-    if (c == '\n' && (console_res->termios.c_iflag & ICRNL) == 0) {
-        c = '\r';
+    if (c == '\r' && (console_res->termios.c_iflag & ICRNL) != 0) {
+        c = '\n';
     }
 
     if (console_res->termios.c_lflag & ICANON) {
