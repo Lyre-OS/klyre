@@ -168,7 +168,7 @@ static void single_cpu_init(struct limine_mp_info *mp_info) {
 
     kernel_print("cpu: Processor #%u online!\n", cpu_number);
 
-    cpus_started_i++;
+    __atomic_fetch_add(&cpus_started_i, 1, __ATOMIC_SEQ_CST);
 
     if (!cpu_local->bsp) {
         sched_await();
