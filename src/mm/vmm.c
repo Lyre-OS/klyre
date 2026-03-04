@@ -274,8 +274,6 @@ void vmm_destroy_pagemap(struct pagemap *pagemap) {
         munmap(pagemap, local_range->base, local_range->length);
     }
 
-    spinlock_acquire(&pagemap->lock);
-
     destroy_level(pagemap->top_level, 0, 256, 4);
     free(pagemap);
 }
