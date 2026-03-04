@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <limine.h>
 #include <lib/alloc.k.h>
+#include <lib/libc.k.h>
 #include <lib/errno.k.h>
 #include <lib/lock.k.h>
 #include <lib/misc.k.h>
@@ -199,39 +200,36 @@ struct pagemap *vmm_fork_pagemap(struct pagemap *pagemap) {
             new_global_range->length = global_range->length;
             new_global_range->res = global_range->res;
             new_global_range->offset = global_range->offset;
+            new_global_range->name = global_range->name != NULL ? strdup(global_range->name) : NULL;
 
             new_local_range->global = new_global_range;
             VECTOR_PUSH_BACK(&new_global_range->locals, new_local_range);
 
-            if ((local_range->flags & MAP_ANONYMOUS) != 0) {
-                for (uintptr_t i = local_range->base; i < local_range->base + local_range->length; i += PAGE_SIZE) {
-                    uint64_t *old_pte = vmm_virt2pte(pagemap, i, false);
-                    if (old_pte == NULL || (PTE_GET_FLAGS(*old_pte) & PTE_PRESENT) == 0) {
-                        continue;
-                    }
-
-                    uint64_t *new_pte = vmm_virt2pte(new_pagemap, i, true);
-                    if (new_pte == NULL) {
-                        goto cleanup;
-                    }
-
-                    uint64_t *new_spte = vmm_virt2pte(new_global_range->shadow_pagemap, i, true);
-                    if (new_spte == NULL) {
-                        goto cleanup;
-                    }
-
-                    void *old_page = (void *)PTE_GET_ADDR(*old_pte);
-                    void *page = pmm_alloc_nozero(1);
-                    if (page == NULL) {
-                        goto cleanup;
-                    }
-
-                    memcpy(page + VMM_HIGHER_HALF, old_page + VMM_HIGHER_HALF, PAGE_SIZE);
-                    *new_pte = PTE_GET_FLAGS(*old_pte) | (uint64_t)page;
-                    *new_spte = *new_pte;
+            for (uintptr_t i = local_range->base; i < local_range->base + local_range->length; i += PAGE_SIZE) {
+                uint64_t *old_pte = vmm_virt2pte(pagemap, i, false);
+                if (old_pte == NULL || (PTE_GET_FLAGS(*old_pte) & PTE_PRESENT) == 0) {
+                    continue;
                 }
-            } else {
-                panic(NULL, true, "Non anon fork");
+
+                uint64_t *new_pte = vmm_virt2pte(new_pagemap, i, true);
+                if (new_pte == NULL) {
+                    goto cleanup;
+                }
+
+                uint64_t *new_spte = vmm_virt2pte(new_global_range->shadow_pagemap, i, true);
+                if (new_spte == NULL) {
+                    goto cleanup;
+                }
+
+                void *old_page = (void *)PTE_GET_ADDR(*old_pte);
+                void *page = pmm_alloc_nozero(1);
+                if (page == NULL) {
+                    goto cleanup;
+                }
+
+                memcpy(page + VMM_HIGHER_HALF, old_page + VMM_HIGHER_HALF, PAGE_SIZE);
+                *new_pte = PTE_GET_FLAGS(*old_pte) | (uint64_t)page;
+                *new_spte = *new_pte;
             }
         }
 
