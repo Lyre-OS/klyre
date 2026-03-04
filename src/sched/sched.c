@@ -653,7 +653,7 @@ int syscall_exec(void *_, const char *path, const char **argv, const char **envp
 
     struct pagemap *new_pagemap = vmm_new_pagemap();
     struct auxval auxv, ld_auxv;
-    const char *ld_path;
+    const char *ld_path = NULL;
 
     struct vfs_node *node = vfs_get_node(proc->cwd, path, true);
     if (node == NULL || !elf_load(new_pagemap, node->resource, 0x0, &auxv, &ld_path)) {
@@ -681,6 +681,11 @@ int syscall_exec(void *_, const char *path, const char **argv, const char **envp
     proc->threads = (typeof(proc->threads))VECTOR_INIT;
 
     uint64_t entry = ld_path == NULL ? auxv.at_entry : ld_auxv.at_entry;
+
+    if (ld_path != NULL) {
+        free((void *)ld_path);
+        ld_path = NULL;
+    }
 
     struct thread *new_thread = sched_new_user_thread(proc, (void *)entry, NULL, NULL, argv, envp, &auxv, true);
 
