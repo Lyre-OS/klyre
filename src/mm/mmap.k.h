@@ -17,6 +17,7 @@ struct mmap_range_global {
     uintptr_t base;
     size_t length;
     off_t offset;
+    const char *name;
 };
 
 struct mmap_range_local {
@@ -34,9 +35,10 @@ bool mmap_handle_pf(struct cpu_ctx *ctx);
 bool mmap_page_in_range(struct mmap_range_global *global, uintptr_t virt,
                             uintptr_t phys, int prot);
 bool mmap_range(struct pagemap *pagemap, uintptr_t virt, uintptr_t phys,
-                size_t length, int prot, int flags);
+                size_t length, int prot, int flags, const char *name,
+                struct resource *res, off_t offset);
 void *mmap(struct pagemap *pagemap, uintptr_t addr, size_t length, int prot,
-           int flags, struct resource *res, off_t offset);
+           int flags, struct resource *res, off_t offset, const char *name);
 bool munmap(struct pagemap *pagemap, uintptr_t addr, size_t length);
 
 #endif

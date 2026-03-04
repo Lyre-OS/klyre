@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <sys/mman.h>
 #include <lib/alloc.k.h>
+#include <lib/libc.k.h>
 #include <lib/errno.k.h>
 #include <lib/lock.k.h>
 #include <lib/misc.k.h>
@@ -14,6 +15,7 @@
 #include <mm/pmm.k.h>
 #include <mm/vmm.k.h>
 #include <sched/proc.k.h>
+#include <fs/vfs/vfs.k.h>
 #include <sys/cpu.k.h>
 
 struct addr2range {
@@ -38,11 +40,24 @@ struct addr2range addr2range(struct pagemap *pagemap, uintptr_t virt) {
 }
 
 void mmap_list_ranges(struct pagemap *pagemap) {
-    kernel_print("Ranges for %lx:\n", pagemap);
+    kernel_print("Memory map:\n");
 
     VECTOR_FOR_EACH(&pagemap->mmap_ranges, it,
         struct mmap_range_local *local_range = *it;
-        kernel_print("\tbase=%lx, length=%lx, offset=%lx\n", local_range->base, local_range->length, local_range->offset);
+        struct mmap_range_global *global = local_range->global;
+
+        char prot_str[4] = "---";
+        if (local_range->prot & PROT_READ)  prot_str[0] = 'r';
+        if (local_range->prot & PROT_WRITE) prot_str[1] = 'w';
+        if (local_range->prot & PROT_EXEC)  prot_str[2] = 'x';
+
+        const char *type = (local_range->flags & MAP_ANONYMOUS) ? "anon" : "file";
+        const char *name = global->name != NULL ? global->name : "";
+
+        kernel_print("  %016lx-%016lx %s %s off=%lx %s\n",
+            local_range->base,
+            local_range->base + local_range->length,
+            prot_str, type, local_range->offset, name);
     );
 }
 
@@ -123,7 +138,8 @@ bool mmap_page_in_range(struct mmap_range_global *global, uintptr_t virt,
 }
 
 bool mmap_range(struct pagemap *pagemap, uintptr_t virt, uintptr_t phys,
-                size_t length, int prot, int flags) {
+                size_t length, int prot, int flags, const char *name,
+                struct resource *res, off_t offset) {
     flags |= MAP_ANONYMOUS;
 
     uintptr_t aligned_virt = ALIGN_DOWN(virt, PAGE_SIZE);
@@ -145,6 +161,9 @@ bool mmap_range(struct pagemap *pagemap, uintptr_t virt, uintptr_t phys,
 
     global_range->base = aligned_virt;
     global_range->length = aligned_length;
+    global_range->name = name != NULL ? strdup(name) : NULL;
+    global_range->res = res;
+    global_range->offset = offset;
 
     local_range = ALLOC(struct mmap_range_local);
     if (local_range == NULL) {
@@ -158,6 +177,7 @@ bool mmap_range(struct pagemap *pagemap, uintptr_t virt, uintptr_t phys,
     local_range->length = aligned_length;
     local_range->prot = prot;
     local_range->flags = flags;
+    local_range->offset = offset;
 
     VECTOR_PUSH_BACK(&global_range->locals, local_range);
 
@@ -290,7 +310,7 @@ cleanup:
 }
 
 void *mmap(struct pagemap *pagemap, uintptr_t addr, size_t length, int prot,
-           int flags, struct resource *res, off_t offset) {
+           int flags, struct resource *res, off_t offset, const char *name) {
     struct mmap_range_global *global_range = NULL;
     struct mmap_range_local *local_range = NULL;
 
@@ -333,6 +353,7 @@ void *mmap(struct pagemap *pagemap, uintptr_t addr, size_t length, int prot,
     global_range->length = length;
     global_range->res = res;
     global_range->offset = offset;
+    global_range->name = name != NULL ? strdup(name) : NULL;
 
     local_range = ALLOC(struct mmap_range_local);
     if (local_range == NULL) {
@@ -457,6 +478,7 @@ bool munmap(struct pagemap *pagemap, uintptr_t addr, size_t length) {
 
             vmm_destroy_pagemap(global_range->shadow_pagemap);
             free(local_range);
+            free((void *)global_range->name);
             free(global_range);
         } else {
             if (snip_begin == local_range->base) {
@@ -480,6 +502,8 @@ void *syscall_mmap(void *_, uintptr_t hint, size_t length, uint64_t flags, int f
     struct process *proc = thread->process;
 
     struct resource *res = NULL;
+    char path_buf[256];
+    const char *name = NULL;
     if (fdnum != -1) {
         struct f_descriptor *fd = fd_from_fdnum(proc, fdnum);
         if (fd == NULL) {
@@ -487,11 +511,17 @@ void *syscall_mmap(void *_, uintptr_t hint, size_t length, uint64_t flags, int f
         }
 
         res = fd->description->res;
+
+        if (fd->description->node != NULL) {
+            size_t path_len = vfs_pathname(fd->description->node, path_buf, sizeof(path_buf) - 1);
+            path_buf[path_len] = '\0';
+            name = path_buf;
+        }
     } else if (offset != 0) {
         errno = EINVAL;
         goto cleanup;
     }
-    ret = mmap(proc->pagemap, hint, length, (int)(flags >> 32), (int)flags, res, offset);
+    ret = mmap(proc->pagemap, hint, length, (int)(flags >> 32), (int)flags, res, offset, name);
 
 cleanup:
     DEBUG_SYSCALL_LEAVE("%llx", ret);
