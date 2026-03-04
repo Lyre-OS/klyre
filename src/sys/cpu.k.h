@@ -156,7 +156,7 @@ static inline void fxrstor(void *ctx) {
 static inline uint64_t rdtsc(void) {
     uint32_t edx, eax;
     asm volatile ("rdtsc" : "=d"(edx), "=a"(eax));
-    return ((uint64_t)edx << 32) | edx;
+    return ((uint64_t)edx << 32) | eax;
 }
 
 static inline uint64_t rdrand(void) {
