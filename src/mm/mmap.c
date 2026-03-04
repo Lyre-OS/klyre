@@ -69,22 +69,28 @@ bool mmap_handle_pf(struct cpu_ctx *ctx) {
         return false;
     }
 
+    // Copy fields while holding the lock to avoid TOCTOU on the range pointer
+    int flags = local_range->flags;
+    int prot = local_range->prot;
+    struct mmap_range_global *global = local_range->global;
+
+    // Release before page-in: mmap_page_in_range calls vmm_map_page which
+    // re-acquires pagemap->lock
+    spinlock_release(&pagemap->lock);
+
     void *page = NULL;
-    if ((local_range->flags & MAP_ANONYMOUS) != 0) {
+    if ((flags & MAP_ANONYMOUS) != 0) {
         page = pmm_alloc(1);
     } else {
-        struct resource *res = local_range->global->res;
-        page = res->mmap(res, range.file_page, local_range->flags);
+        struct resource *res = global->res;
+        page = res->mmap(res, range.file_page, flags);
     }
 
     if (page == NULL) {
-        spinlock_release(&pagemap->lock);
         return false;
     }
 
-    bool ret = mmap_page_in_range(local_range->global, range.memory_page * PAGE_SIZE, (uintptr_t)page, local_range->prot);
-    spinlock_release(&pagemap->lock);
-    return ret;
+    return mmap_page_in_range(global, range.memory_page * PAGE_SIZE, (uintptr_t)page, prot);
 }
 
 bool mmap_page_in_range(struct mmap_range_global *global, uintptr_t virt,
