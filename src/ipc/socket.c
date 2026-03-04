@@ -242,8 +242,6 @@ int syscall_setsockopt(void *_, int fdnum, int level, int optname, const void *o
         errno = ENOTSOCK;
     }
 
-    desc->refcount--;
-
 cleanup:
     DEBUG_SYSCALL_LEAVE("%d", ret);
     return ret;
@@ -276,8 +274,6 @@ int syscall_getsockopt(void *_, int fdnum, int level, int optname, void *optval,
     } else {
         errno = ENOTSOCK;
     }
-
-    desc->refcount--;
 
 cleanup:
     DEBUG_SYSCALL_LEAVE("%d", ret);
@@ -362,8 +358,6 @@ int syscall_bind(void *_, int fdnum, void *addr, socklen_t len) {
         errno = ENOTSOCK;
     }
 
-    desc->refcount--;
-
 cleanup:
     DEBUG_SYSCALL_LEAVE("%d", ret);
     return ret;
@@ -400,8 +394,6 @@ int syscall_connect(void *_, int fdnum, void *addr, socklen_t len) {
         errno = ENOTSOCK;
     }
 
-    desc->refcount--;
-
 cleanup:
     DEBUG_SYSCALL_LEAVE("%d", ret);
     return ret;
@@ -437,8 +429,6 @@ int syscall_listen(void *_, int fdnum, int backlog) {
     } else {
         errno = ENOTSOCK;
     }
-
-    desc->refcount--;
 
 cleanup:
     DEBUG_SYSCALL_LEAVE("%d", ret);
@@ -536,8 +526,6 @@ cleanup2:
         errno = ENOTSOCK;
     }
 
-    desc->refcount--;
-
 cleanup:
     DEBUG_SYSCALL_LEAVE("%d", ret);
     return ret;
@@ -571,8 +559,6 @@ int syscall_getpeername(void *_, int fdnum, void *addr, socklen_t *len) {
         errno = ENOTSOCK;
     }
 
-    desc->refcount--;
-
 cleanup:
     DEBUG_SYSCALL_LEAVE("%d", ret);
     return ret;
@@ -603,8 +589,6 @@ int syscall_getsockname(void *_, int fdnum, void *addr, socklen_t *len) {
     } else {
         errno = ENOTSOCK;
     }
-
-    desc->refcount--;
 
 cleanup:
     DEBUG_SYSCALL_LEAVE("%d", ret);
@@ -639,7 +623,6 @@ ssize_t syscall_sendmsg(void *_, int fdnum, const struct msghdr *msg, int flags)
         errno = ENOTSOCK;
     }
 
-    desc->refcount--;
 cleanup:
     DEBUG_SYSCALL_LEAVE("%d", ret);
     return ret;
@@ -672,8 +655,6 @@ ssize_t syscall_recvmsg(void *_, int fdnum, struct msghdr *msg, int flags) {
     } else {
         errno = ENOTSOCK;
     }
-
-    desc->refcount--;
 
 cleanup:
     DEBUG_SYSCALL_LEAVE("%d", ret);
