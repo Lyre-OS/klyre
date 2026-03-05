@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <sys/mman.h>
+#include <printf/printf.h>
 #include <lib/alloc.k.h>
 #include <lib/libc.k.h>
 #include <lib/errno.k.h>
